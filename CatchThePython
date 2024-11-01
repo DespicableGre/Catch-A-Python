@@ -1,0 +1,95 @@
+# Add this function to your game code
+import leaderboard as lb
+
+#-----import statements-----
+import turtle as trtl
+import random as rnd
+
+# Leaderboard
+leaderboard_file_name = "a122_leaderboard.txt"
+lb.get_names(leaderboard_file_name)
+lb.getPlayerName()
+
+#-----countdown variables-----
+mole = trtl.Turtle()
+font_setup1 = ("Arial", 20, "normal")
+font_setup2 = ("Comic Sans MS", 20, "normal")
+score = 0
+time_timer = 30
+timer = time_timer
+counter_interval = 1000   #1000 represents 1 second
+game = False
+timer_up = False
+
+#-----countdown writer-----
+counter = trtl.Turtle()
+counter.hideturtle()
+counter.speed(0)
+counter.goto(-trtl.screensize()[0],-trtl.screensize()[1])
+counter.clear()
+counter.write("Start Clicking!!!", font=font_setup1)
+display = trtl.Turtle()
+display.hideturtle()
+display.shape(None)
+display.penup()
+display.speed(0)
+display.goto(-trtl.screensize()[0],-trtl.screensize()[1])
+display.clear()
+wn = trtl.Screen()
+
+#-----game functions-----
+mole.shapesize(5)
+mole.speed(0)
+mole.penup()
+
+def countdown():
+  global timer, timer_up, counter, mole
+  counter.clear()
+  if timer <= 0:
+    counter.write("Time's Up", font=font_setup1)
+    timer_up = True
+  else:
+    counter.write("Timer: " + str(timer), font=font_setup1)
+    timer -= 1
+    counter.getscreen().ontimer(countdown, counter_interval) 
+  while timer_up == True:
+    mole.hideturtle()
+    mole.goto(150,300)
+    displayScore()
+    break
+
+def onTurtleClick(x,y):
+  global timer
+  while timer_up == False and timer <= time_timer - 1:
+    lb.player.Score = lb.player.Score + 1
+    displayScore()
+    randomizePosition()
+    break
+
+def displayScore():
+  global mole, display, timer_up
+  display.goto(mole.pos()[0],mole.pos()[1])
+  display.clear()
+  if timer_up == True:
+    display.write("Your final score:" + str(lb.player.Score), font=font_setup2)
+    showScores = trtl.Turtle()
+    showScores.penup()
+    showScores.hideturtle()
+    showScores.speed(0)
+    lb.draw_leaderboard(leaderboard_file_name,showScores)
+  else:
+    display.write(str(lb.player.Score), font=font_setup2)
+  display.hideturtle()
+
+  
+
+def randomizePosition():
+  global mole
+  mole.goto(rnd.randrange(-trtl.screensize()[0],trtl.screensize()[0]),
+    rnd.randrange(-trtl.screensize()[1],trtl.screensize()[1]))
+
+mole.onclick(onTurtleClick)
+
+#---------events---------
+wn.ontimer(countdown, counter_interval)
+wn.mainloop()   
