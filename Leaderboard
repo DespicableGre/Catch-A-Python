@@ -1,0 +1,92 @@
+import re
+bronze_score = 20
+silver_score = 30
+gold_score = 45
+
+class leader:
+  def __init__(self,name = "Guest",score = 0):
+    self.Name = name
+    self.Score = score
+  Name = str
+  Score = int
+
+leaders = []
+def getPlayerName():
+  global leaders, player
+  PlayerName = input("\nPlease enter your player name: \n")
+  match = re.match(r'[\w\-\s+]+', PlayerName)
+  if match:
+    name = "".join(match.group().split())
+    player = leader(name,0)
+  else:
+    print("\nPlease keep your name in the alphanumerical range.\n")
+    getPlayerName()
+
+
+def get_names(file_name):
+  global leaders ## maybe remove idk
+  leaderboard_file = open(file_name, "r")
+  leaders = []
+  for line in leaderboard_file:
+    line = "".join(line.split())
+    match = re.match(r'([\w-]+),([0-9]+)',line)
+    if match:
+      leaders.append(leader(match.group(1), (match.group(2))))
+  leaderboard_file.close()
+  return []
+
+def newLine(turt):
+  global leaders
+  turt.penup()
+  turt.goto(-400,int(turt.ycor())-50)
+  turt.pendown()
+
+def saveFile(file_name):
+  global leaders
+  file = open(file_name, "w")
+  for leader in leaders:
+    file.write(f"{leader.Name},{leader.Score}\n")
+  file.close()
+
+# draw leaderboard and display a message to player
+def draw_leaderboard(file_name_, turtle_object):
+  global player
+  font_setup = ("Arial", 20, "normal")
+  turtle_object.clear()
+  turtle_object.penup()
+  turtle_object.goto(-400,300)
+  turtle_object.hideturtle()
+  turtle_object.down()
+  leaders.append(player)
+  leaders.sort(key=lambda Leader: int(Leader.Score), reverse=True)
+  saveFile(file_name_)
+  index = 1
+  for players in leaders:
+    turtle_object.write(f"{index}\t{players.Name}\t\t{players.Score}", font=font_setup)
+    index = index + 1
+    if index == 6:
+      break
+    newLine(turtle_object)
+  
+  # move turtle to a new line
+
+  newLine(turtle_object)
+  newLine(turtle_object)
+
+  while len(leaders) < 5:
+    leaders.append(leader())
+
+  if leaders.index(player) < 5:
+    turtle_object.write("Congratulations!\nYou made the leaderboard!", font=font_setup)
+  else:
+    turtle_object.write("Sorry!\nYou didn't make the leaderboard.\nMaybe next time!", font=font_setup)
+
+  newLine(turtle_object)
+  newLine(turtle_object)
+
+  if int(player.Score) >= gold_score:
+    turtle_object.write("You earned a gold medal!", font=font_setup)
+  elif int(player.Score) >= silver_score and int(player.Score) < gold_score:
+    turtle_object.write("You earned a silver medal!", font=font_setup)
+  elif int(player.Score) >= bronze_score and int(player.Score) < silver_score:
+    turtle_object.write("You earned a bronze medal!", font=font_setup)
